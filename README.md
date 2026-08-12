@@ -1,12 +1,12 @@
-> ⚠️ **No affiliation with any cryptocurrency.** OpenMausBot has no token. Any coin using the OpenMausBot, Maus, or SupaMaus name is not created, endorsed, or affiliated with this project or its maintainer. I have received no tokens, payment, or allocation from anyone, and I will not be endorsing any token.
+> ⚠️ **No affiliation with any cryptocurrency.** OpenMauseBotRemix has no token. Any coin using the OpenMauseBotRemix, Maus, or SupaMaus name is not created, endorsed, or affiliated with this project or its maintainer. I have received no tokens, payment, or allocation from anyone, and I will not be endorsing any token.
 
 <div align="center">
 
-# OpenMausBot
+# OpenMauseBotRemix
 
 **Your own team of AI bots, in a chat app.**
 
-<sub>An open-source version of **Grok Bot** — bring-your-own-agent, local-first, on the models and harnesses you already have.</sub>
+<sub>OpenMauseBotRemix is an open-source version of **Grok Bot** — bring-your-own-agent, local-first, on the models and harnesses you already have.</sub>
 
 Every bot in the sidebar is a real agent — Claude, Codex, Grok Build, Hermes, OpenClaw, Copilot, or a local/compatible model — with its own
 personality, its own model, its own cloud computer, and its own connected apps.
@@ -20,8 +20,8 @@ Talk to them like contacts. Watch them work. Approve what matters.
 
 <br>
 
-<a href="https://github.com/milind-soni/openmausbot-releases/releases/latest/download/OpenMausBot.dmg">
-  <img src="https://img.shields.io/github/v/release/milind-soni/openmausbot-releases?style=for-the-badge&label=%E2%AC%87%EF%B8%8F%20%20Download%20for%20macOS&labelColor=070707&color=1084fe" alt="Download the latest OpenMausBot for macOS (.dmg)" height="40">
+<a href="https://github.com/milind-soni/openmausbot-releases/releases/latest/download/OpenMauseBotRemix.dmg">
+  <img src="https://img.shields.io/github/v/release/milind-soni/openmausbot-releases?style=for-the-badge&label=%E2%AC%87%EF%B8%8F%20%20Download%20for%20macOS&labelColor=070707&color=1084fe" alt="Download the latest OpenMauseBotRemix for macOS (.dmg)" height="40">
 </a>
 
 <sub>Apple silicon · signed & notarized · one-click .dmg, always the latest · [all releases](https://github.com/milind-soni/openmausbot-releases/releases)</sub>
@@ -29,7 +29,7 @@ Talk to them like contacts. Watch them work. Approve what matters.
 <br>
 <br>
 
-<img src="docs/screenshots/hero.png" alt="OpenMausBot — a Telegram-style chat app where every chat is a real AI agent" width="900">
+<img src="docs/screenshots/hero.png" alt="OpenMauseBotRemix — a Telegram-style chat app where every chat is a real AI agent" width="900">
 
 </div>
 
@@ -37,7 +37,7 @@ Talk to them like contacts. Watch them work. Approve what matters.
 
 ## Why
 
-One assistant in one box is the wrong shape for agents. OpenMausBot is an open-source take on **Grok Bot** —
+One assistant in one box is the wrong shape for agents. OpenMauseBotRemix is an open-source take on **Grok Bot** —
 it keeps the idea (AI as a *messaging app*: a roster of bots you chat with, each with its own personality,
 memory of its thread, model, computer, and apps) and rebuilds it open, local-first, and on the agents you
 already have:
@@ -232,6 +232,6 @@ small; adding a provider is one file in [`server/drivers/`](server/drivers/) plu
 
 [MIT](LICENSE) © 2026 Milind Soni and contributors.
 
-OpenMausBot is an independent, open-source project inspired by Grok Bot. It is
+OpenMauseBotRemix is an independent, open-source project inspired by Grok Bot. It is
 not affiliated with, endorsed by, or associated with xAI; "Grok" is a trademark
 of its respective owner.
