@@ -6,9 +6,9 @@
 
 **Your own team of AI bots, in a chat app.**
 
-<sub>An open-source version of **Grok Bot** — bring-your-own-agent, local-first, on the models you already have.</sub>
+<sub>An open-source version of **Grok Bot** — bring-your-own-agent, local-first, on the models and harnesses you already have.</sub>
 
-Every bot in the sidebar is a real agent — Claude or Codex running locally under the hood — with its own
+Every bot in the sidebar is a real agent — Claude, Codex, Grok Build, Hermes, OpenClaw, Copilot, or a local/compatible model — with its own
 personality, its own model, its own cloud computer, and its own connected apps.
 Talk to them like contacts. Watch them work. Approve what matters.
 
@@ -42,12 +42,15 @@ it keeps the idea (AI as a *messaging app*: a roster of bots you chat with, each
 memory of its thread, model, computer, and apps) and rebuilds it open, local-first, and on the agents you
 already have:
 
-- **Bring your own agents.** Bots run on the `claude`, `codex`, and `grok` CLIs installed on your Mac — your
-  existing logins and subscriptions, no new accounts, no proxy in the middle.
+- **Bring your own agents.** Bots can run through Claude Code, Codex, Grok Build, Hermes ACP, OpenClaw ACP,
+  GitHub Copilot ACP, MiniMax CLI, or any OpenAI-compatible local endpoint — your existing logins and
+  subscriptions, no required proxy in the middle.
 - **Local first.** One small harness server on `127.0.0.1` owns every agent process. Transcripts, keys, and
   events live in `~/.openmausbot`, not a cloud.
 - **Agents with hands.** Each bot can get a real computer — a cloud Linux desktop it drives while you watch
   live, or your own Mac — plus 500+ apps through Composio Connect.
+- **Local AI included.** Ollama, LM Studio, and other OpenAI-compatible `/v1` servers discover their models
+  from `/models` and stream Chat Completions without leaving your machine.
 
 ## Features
 
@@ -57,8 +60,9 @@ already have:
 
 ### 🧠 Pick a brain per bot
 
-A model picker with a provider rail — Claude and Codex models side by side, defaults marked, unavailable
-providers dimmed with the reason. Switch a bot's model mid-conversation.
+A model picker with a provider rail — live catalogs, defaults marked, unavailable providers dimmed with the
+reason, and exact model selection per bot. Grok Build reads the account-aware catalog from `grok models`,
+including Grok, MiniMax, GLM, DeepSeek, Codex, and other models exposed by the installed harness.
 
 <img src="docs/screenshots/model-picker.png" alt="Model picker with provider rail" width="100%">
 
@@ -122,7 +126,8 @@ Secrets are write-only: the UI only ever sees "configured" flags.
 
 **Also in the box:** streaming replies with tool-run activity chips · native macOS dictation from the
 composer mic (on-device Apple speech recognition — desktop app) · SupaMaus cursor mascots with role-aware
-expressions · screenshots of the bot's work folded into the transcript.
+expressions · high-quality raster Orb, Rounded Square, Diamond, and Hexagon mascot shapes · searchable bot
+sidebar with Cmd/Ctrl-K focus · screenshots of the bot's work folded into the transcript.
 
 ## How it works
 
@@ -140,20 +145,22 @@ flowchart LR
         BROKER[Permission broker]
     end
     subgraph agents ["Agents on your Mac"]
-        CL[claude CLI]
-        CX[codex CLI]
+        CL[Claude Code CLI]
+        CX[Codex CLI]
+        ACP[ACP harnesses<br/>Grok · Hermes · OpenClaw · Copilot]
+        LOCAL[Local AI<br/>Ollama · LM Studio · MiniMax]
     end
     UI -- "HTTP commands" --> server
     BUS -- "one SSE stream" --> UI
-    REG --> CL & CX
-    CL & CX -- "MCP" --> BROKER
+    REG --> CL & CX & ACP & LOCAL
+    CL & CX & ACP -- "MCP / ACP" --> BROKER
     server -- "Box API" --> BOX[("Cloud computer<br/>box.ascii.dev")]
     server -- "Composio Connect" --> APPS[("Gmail · Slack · GitHub · …")]
 ```
 
 | Layer | Where | What it does |
 |---|---|---|
-| Drivers | `server/drivers/` | One per provider: Claude, Codex, and Grok Build over their local CLIs (stream-JSON / JSON-RPC / ACP), plus a cloud-computer agent. Unknown drivers degrade to "unavailable", never crash the fleet. |
+| Drivers | `server/drivers/` | One per provider: Claude, Codex, Grok Build, Gemini, Hermes, OpenClaw, Copilot, MiniMax, local AI, OpenRouter, and cloud-computer agents. Unknown drivers degrade to "unavailable", never crash the fleet. |
 | Harness | `server/harness/` | Registry (configs → live instances) and the fan-in event bus every client folds. |
 | API | `server/index.ts` | Bots, turns, approvals, model catalog, computer lifecycle, connectors, config — HTTP + SSE. |
 | App | `src/` | The chat shell. Server-backed store, one reducer, zero client-side transports. |
@@ -167,7 +174,7 @@ drag it to Applications, open it. The harness server is embedded — no setup.
 **From source:**
 
 ```sh
-git clone https://github.com/milind-soni/OpenMausBot && cd OpenMausBot
+git clone https://github.com/Franzferdinan51/OpenMausBotRemix && cd OpenMausBotRemix
 pnpm install
 
 pnpm dev:server    # harness server → 127.0.0.1:8799
@@ -175,9 +182,21 @@ pnpm dev           # app → http://127.0.0.1:5199
 pnpm dev:desktop   # or the Electron shell
 ```
 
-Requirements: **macOS**, **Node 24+**, **pnpm**, and at least one agent CLI — [`claude`](https://claude.com/claude-code),
-[`codex`](https://github.com/openai/codex), or [`grok`](https://x.ai/cli) — installed and logged in. They appear
-in the model picker automatically.
+Requirements: **macOS**, **Node 24+**, and **pnpm**. Add at least one harness for the experience you want:
+
+| Harness/provider | Setup | What it enables |
+|---|---|---|
+| Claude Code | Install [`claude`](https://claude.com/claude-code) and log in | Claude Agent SDK-style local agent turns |
+| Codex | Install [`codex`](https://github.com/openai/codex) and log in | Codex app-server turns and approvals |
+| Grok Build | Install [`grok`](https://x.ai/cli) and log in | ACP agent plus the live `grok models` catalog |
+| Hermes | Install `hermes-acp` and authenticate | Hermes ACP relay |
+| OpenClaw | Install/configure OpenClaw Gateway | OpenClaw ACP turns and local gateway access |
+| GitHub Copilot | Install `copilot --acp --stdio` and log in | Copilot ACP turns |
+| MiniMax | Install `mmx` and run `mmx auth login` | MiniMax M3/M2.7 CLI access |
+| Local AI | Run Ollama, LM Studio, or another `/v1` server | Local model discovery and streaming |
+
+Configured CLIs appear in the model picker automatically; unavailable entries remain visible with their
+diagnostic reason.
 
 Optional, pasted once in **App Settings** (gear in the sidebar footer):
 
@@ -187,16 +206,24 @@ Optional, pasted once in **App Settings** (gear in the sidebar footer):
 | Composio API key (`ak_…`) | The full 500+ app catalog with official logos |
 | Box token ([box.ascii.dev](https://box.ascii.dev)) | Cloud computers for your bots |
 
+Composio uses two different credentials: the **Connect key** (`ck_…`) is for the Connect MCP server and
+connected-app authorization; the **project API key** (`ak_…`) is for the full REST toolkit catalog and logos.
+If a connector request returns HTTP 500, check that the credential is in the matching field, that it belongs
+to the intended Composio project, and inspect the server log for the upstream request message.
+
 ```sh
 pnpm typecheck     # app + server
 pnpm build         # typecheck + production build
+pnpm test          # Vitest unit/API/provider regression suite
 ```
 
 ## Status
 
-Early but real — the loop works end to end: message → agent → streamed reply → tools → approvals →
-computer use. Rough edges to expect: routines (scheduled tasks) are a placeholder, sidebar sections aren't
-built yet, and Windows/Linux shells haven't been attempted (the harness itself is portable Node).
+The core loop works end to end: message → agent → streamed reply → tools → approvals → computer use.
+The app also includes live provider health, model catalogs, local AI connections, provider-specific ACP
+harnesses, persisted bot/model repair on startup, Composio connected apps, and raster mascot customization.
+Routines (scheduled tasks) remain a placeholder, sidebar sections aren't built yet, and Windows/Linux shells
+haven't been attempted (the harness itself is portable Node).
 
 Contributions welcome — the driver SPI in [`server/contracts.ts`](server/contracts.ts) is deliberately
 small; adding a provider is one file in [`server/drivers/`](server/drivers/) plus a one-line registration.
