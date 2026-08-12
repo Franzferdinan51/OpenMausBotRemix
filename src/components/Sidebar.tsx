@@ -1,5 +1,5 @@
 import { track } from "@/lib/analytics";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BellDot,
   ClipboardCopy,
@@ -198,9 +198,32 @@ function BotListItem({ bot, onMenu }: { bot: Bot; onMenu: (menu: MenuState) => v
 export function Sidebar() {
   const { state, dispatch } = useStore();
   const [menu, setMenu] = useState<MenuState | null>(null);
+  const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onShortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        searchRef.current?.focus();
+        searchRef.current?.select();
+      }
+    };
+    window.addEventListener("keydown", onShortcut);
+    return () => window.removeEventListener("keydown", onShortcut);
+  }, []);
+
+  const normalizedQuery = query.trim().toLowerCase();
 
   const visibleBots = state.bots
     .filter((b) => !b.hidden)
+    .filter((b) => {
+      if (!normalizedQuery) return true;
+      const last = b.messages[b.messages.length - 1];
+      return [b.name, b.title, b.description, preview(b), last?.text]
+        .filter(Boolean)
+        .some((value) => value!.toLowerCase().includes(normalizedQuery));
+    })
     .sort((a, b) => Number(b.pinned ?? false) - Number(a.pinned ?? false));
 
   return (
@@ -234,18 +257,30 @@ export function Sidebar() {
         <div className="flex items-center gap-2 rounded-lg bg-raised/70 px-3 py-2">
           <Search size={16} className="text-ink-secondary" />
           <input
+            ref={searchRef}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            aria-label="Search bots"
             placeholder="Search"
             className="w-full bg-transparent text-[14px] text-ink placeholder:text-ink-secondary focus:outline-none"
           />
+          <kbd className="hidden shrink-0 rounded border border-hairline/50 px-1.5 py-0.5 text-[10px] text-ink-secondary sm:inline-block">⌘K</kbd>
         </div>
       </div>
 
       {/* Bot list */}
       <div className="flex-1 overflow-y-auto px-2">
         <div className="flex flex-col gap-0.5">
-          {visibleBots.map((b) => (
+          {visibleBots.length ? visibleBots.map((b) => (
             <BotListItem key={b.id} bot={b} onMenu={setMenu} />
-          ))}
+          )) : (
+            <div className="px-4 py-8 text-center">
+              <Search size={20} className="mx-auto mb-2 text-ink-secondary" />
+              <div className="text-[14px] font-medium text-ink">No bots found</div>
+              <div className="mt-1 text-[12px] text-ink-secondary">Try a different name or clear the search.</div>
+              <button onClick={() => setQuery("")} className="mt-3 rounded-lg bg-raised px-3 py-1.5 text-[12px] text-ink-secondary hover:text-ink">Clear search</button>
+            </div>
+          )}
         </div>
       </div>
 
