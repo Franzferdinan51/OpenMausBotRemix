@@ -61,6 +61,9 @@ export interface AcpSupport {
   isAuthenticated(env: Record<string, string | undefined>): boolean;
   /** Compose the session/prompt text. Default prepends the persona. */
   buildPromptText?(turn: SendTurnInput): string;
+  /** `empty` keeps bridges that require the schema field happy while never
+   * injecting host MCP processes; `full` is the normal ACP-agent behavior. */
+  mcpServersMode?: "full" | "empty";
 }
 
 const INIT_TIMEOUT = 20_000;
@@ -148,7 +151,7 @@ export function createAcpDriver(support: AcpSupport): ProviderDriver<AcpConfig> 
         const turnId = newId();
         const cwd = turn.cwd ?? config.workspace ?? homedir();
         const env = childEnv();
-        const mcpServers = acpMcpServers(turn);
+        const mcpServers = support.mcpServersMode === "empty" ? [] : acpMcpServers(turn);
 
         const child = spawn(config.cli, support.spawnArgs(config, turn), {
           cwd,

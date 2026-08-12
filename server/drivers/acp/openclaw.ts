@@ -1,0 +1,3 @@
+import { createAcpDriver, type AcpSupport } from "./core.ts";
+const support: AcpSupport = { driverKind: "openclaw", displayName: "OpenClaw", models: { default: "default", options: [{ id: "default", label: "OpenClaw default" }] }, defaultCli: "openclaw", nativeSource: "openclaw.acp", loginNote: "OpenClaw is not installed or its gateway is unavailable", spawnArgs: () => ["acp"], pickAuthMethod: () => null, authFailure: "continue", isAuthenticated: () => true, mcpServersMode: "empty", buildPromptText: t => t.system ? `${t.system}\n\n${t.text}` : t.text };
+export const OpenClawDriver = createAcpDriver(support);

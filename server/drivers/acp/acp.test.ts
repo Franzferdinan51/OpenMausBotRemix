@@ -17,6 +17,9 @@ import type { ProviderInstance } from "../../contracts.ts";
 import { recordEvents, type EventRecorder } from "../../testing/events.ts";
 import { GrokAgentDriver } from "./grok.ts";
 import { GeminiAgentDriver } from "./gemini.ts";
+import { HermesDriver } from "./hermes.ts";
+import { OpenClawDriver } from "./openclaw.ts";
+import { CopilotDriver } from "./copilot.ts";
 
 const FAKE_CLI = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "testing", "fake-acp-cli.ts");
 const posixOnly = describe.skipIf(process.platform === "win32");
@@ -31,6 +34,11 @@ describe("ACP decodeConfig", () => {
   it("fullAuto only when explicitly true", () => {
     expect(GrokAgentDriver.decodeConfig({ fullAuto: "yes" }).fullAuto).toBe(false);
     expect(GrokAgentDriver.decodeConfig({ fullAuto: true }).fullAuto).toBe(true);
+  });
+  it("uses the actual Hermes ACP executable and OpenClaw ACP bridge command", () => {
+    expect(HermesDriver.decodeConfig({}).cli).toBe("hermes-acp");
+    expect(OpenClawDriver.defaultConfig().cli).toBe("openclaw");
+    expect(CopilotDriver.defaultConfig().cli).toBe("copilot");
   });
 });
 
@@ -106,6 +114,17 @@ posixOnly("ACP turns (fake CLI)", () => {
     expect(seen.argv).toContain("stdio");
     expect(seen.argv).toContain("--permission-mode");
     expect(seen.env.XAI_API_KEY).toBeUndefined();
+  });
+
+  it("sends the required empty MCP array to the OpenClaw bridge", async () => {
+    await create(OpenClawDriver);
+    const dump = join(scratch, "openclaw-dump.json");
+    process.env.FAKE_ACP_DUMP = dump;
+    await instance.adapter.sendTurn({ threadId: "t-openclaw", text: "go" });
+    await recorder.until((event) => event.type === "turn.completed");
+    const seen = JSON.parse(readFileSync(dump, "utf8"));
+    expect(seen.argv).toEqual(["acp"]);
+    expect(seen.sessionNew.mcpServers).toEqual([]);
   });
 
   it("surfaces a permission ask as request.opened and completes once allowed", async () => {

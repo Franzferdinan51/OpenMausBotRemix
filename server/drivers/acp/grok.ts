@@ -11,7 +11,7 @@ import { createAcpDriver, type AcpSupport } from "./core.ts";
 
 const support: AcpSupport = {
   driverKind: "grokAgent",
-  displayName: "Grok",
+  displayName: "Grok Build",
   // The CLI catalog is account-driven (`grok models` reports one today);
   // eventually read from the initialize result's _meta.modelState.
   models: { default: "grok-4.5", options: [{ id: "grok-4.5", label: "Grok 4.5" }] },

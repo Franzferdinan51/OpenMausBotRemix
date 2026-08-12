@@ -9,6 +9,7 @@ import type { InstanceConfigMap } from "./contracts.ts";
 
 export interface AppConfig {
   xai?: { key?: string; url?: string };
+  openrouter?: { key?: string };
   /** key = ck_… Connect consumer key (connections + agent tools);
    * apiKey = ak_… project API key — optional, unlocks the full toolkit
    * catalog with official logos in the plugins marketplace. */
@@ -46,6 +47,7 @@ export function loadConfig(): AppConfig {
     /* first run — env fallbacks below */
   }
   cfg.xai = { key: process.env.XAI_API_KEY, ...cfg.xai };
+  cfg.openrouter = { key: process.env.OPENROUTER_API_KEY, ...cfg.openrouter };
   cfg.composio = { key: process.env.COMPOSIO_KEY, ...cfg.composio };
   cfg.box = { token: process.env.BOX_TOKEN, ...cfg.box };
   return cfg;
@@ -61,7 +63,7 @@ export function saveConfig(patch: Partial<AppConfig>): void {
   } catch {
     /* first write */
   }
-  for (const key of ["xai", "composio", "box", "profile"] as const) {
+  for (const key of ["xai", "openrouter", "composio", "box", "profile"] as const) {
     if (patch[key] && typeof patch[key] === "object") {
       disk[key] = { ...(disk[key] as object), ...patch[key] };
     }
@@ -90,10 +92,16 @@ export function instanceConfigs(cfg: AppConfig): InstanceConfigMap {
           claude: { driver: "claudeAgent" },
           codex: { driver: "codex" },
           computer: { driver: "boxAgent" },
+          localAi: { driver: "localAi", displayName: "Local AI (Ollama / LM Studio)", config: { url: process.env.LOCAL_AI_URL ?? "http://127.0.0.1:11434/v1", apiKeyEnv: "", models: (process.env.LOCAL_AI_MODELS ?? "local-model").split(",") } },
+          openRouter: { driver: "openRouter" },
+          hermes: { driver: "hermes" },
+          openclaw: { driver: "openclaw" },
+          copilot: { driver: "copilot" },
         };
   for (const entry of Object.values(map)) {
     entry.environment = {
       ...(cfg.xai?.key ? { XAI_API_KEY: cfg.xai.key } : {}),
+      ...(cfg.openrouter?.key ? { OPENROUTER_API_KEY: cfg.openrouter.key } : {}),
       ...(cfg.box?.token ? { BOX_TOKEN: cfg.box.token } : {}),
       ...entry.environment,
     };

@@ -14,16 +14,17 @@
 //
 // Keep this file dependency-free — it runs as a bare `node` subprocess.
 import { spawn } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 
 const mode = process.env.FAKE_ACP_MODE ?? "happy";
 const argv = process.argv.slice(2);
+const dumpPath = process.env.FAKE_ACP_DUMP;
 if (argv.includes("--version")) {
   console.log("fake-acp 1.0.0");
   process.exit(0);
 }
-if (process.env.FAKE_ACP_DUMP) {
-  writeFileSync(process.env.FAKE_ACP_DUMP, JSON.stringify({ argv, env: process.env }, null, 2));
+if (dumpPath) {
+  writeFileSync(dumpPath, JSON.stringify({ argv, env: process.env }, null, 2));
 }
 
 const out = (obj: unknown) => process.stdout.write(JSON.stringify(obj) + "\n");
@@ -134,6 +135,10 @@ function handle(msg: any) {
       result(msg.id, {});
       break;
     case "session/new": {
+      if (dumpPath) {
+        const dump = JSON.parse(readFileSync(dumpPath, "utf8"));
+        writeFileSync(dumpPath, JSON.stringify({ ...dump, sessionNew: msg.params }, null, 2));
+      }
       const servers: McpEntry[] = Array.isArray(msg.params?.mcpServers) ? msg.params.mcpServers : [];
       agentsMcp = servers.find((s: any) => s?.name === "agents") ?? null;
       result(msg.id, { sessionId: "fake-acp-session" });

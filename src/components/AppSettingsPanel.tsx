@@ -86,6 +86,7 @@ export function AppSettingsPanel() {
               placeholder="ak_…  unlocks the full app catalog"
             />
             <ApiKeyRow section="box" label="Box token" placeholder="Token from box.ascii.dev" />
+            <ApiKeyRow section="openrouter" label="OpenRouter API key" placeholder="sk-or-…" />
           </div>
         </div>
       </div>

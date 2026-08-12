@@ -7,6 +7,10 @@ import { CodexDriver } from "./codex.ts";
 import { GrokDriver } from "./grok.ts";
 import { GrokAgentDriver } from "./acp/grok.ts";
 import { GeminiAgentDriver } from "./acp/gemini.ts";
+import { HermesDriver } from "./acp/hermes.ts";
+import { OpenClawDriver } from "./acp/openclaw.ts";
+import { CopilotDriver } from "./acp/copilot.ts";
+import { LocalAiDriver, OpenRouterDriver } from "./openai-compatible.ts";
 
 export const BUILT_IN_DRIVERS: readonly AnyProviderDriver[] = [
   GrokDriver,
@@ -15,4 +19,9 @@ export const BUILT_IN_DRIVERS: readonly AnyProviderDriver[] = [
   ClaudeDriver,
   CodexDriver,
   BoxAgentDriver,
+  HermesDriver,
+  OpenClawDriver,
+  CopilotDriver,
+  LocalAiDriver,
+  OpenRouterDriver,
 ];
