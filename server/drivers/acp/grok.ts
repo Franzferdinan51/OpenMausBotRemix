@@ -7,14 +7,31 @@ import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
+import { execFile } from "node:child_process";
 import { createAcpDriver, type AcpSupport } from "./core.ts";
+
+function titleForModel(model: string) {
+  return model.replace(/^codex-/, "Codex ").replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+export async function discoverGrokModels(cli: string, env: Record<string, string | undefined>) {
+  const stdout = await new Promise<string>((resolve, reject) => {
+    execFile(cli, ["models"], { timeout: 10_000, env }, (error, output) => error ? reject(error) : resolve(output));
+  });
+  const defaultModel = stdout.match(/^Default model:\s*([^\s]+)/mi)?.[1];
+  const options = [...stdout.matchAll(/^\s{2,}(?:[*-]\s+)?([a-z0-9][a-z0-9._-]*)\b.*$/gim)]
+    .map((match) => match[1])
+    .filter((id, index, all) => all.indexOf(id) === index)
+    .map((id) => ({ id, label: titleForModel(id) }));
+  return options.length ? { default: defaultModel && options.some((option) => option.id === defaultModel) ? defaultModel : options[0].id, options } : null;
+}
 
 const support: AcpSupport = {
   driverKind: "grokAgent",
   displayName: "Grok Build",
-  // The CLI catalog is account-driven (`grok models` reports one today);
-  // eventually read from the initialize result's _meta.modelState.
-  models: { default: "grok-4.5", options: [{ id: "grok-4.5", label: "Grok 4.5" }] },
+  // Account-aware catalog is refreshed from the installed CLI in snapshot().
+  models: { default: "grok-4.6", options: [{ id: "grok-4.6", label: "Grok 4.6" }] },
+  discoverModels: discoverGrokModels,
   defaultCli: "grok",
   nativeSource: "grok.acp",
   loginNote: "Grok CLI is not signed in — run `grok login` in a terminal",

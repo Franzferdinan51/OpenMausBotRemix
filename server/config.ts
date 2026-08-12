@@ -94,6 +94,7 @@ export function instanceConfigs(cfg: AppConfig): InstanceConfigMap {
           computer: { driver: "boxAgent" },
           localAi: { driver: "localAi", displayName: "Local AI (Ollama / LM Studio)", config: { url: process.env.LOCAL_AI_URL ?? "http://127.0.0.1:11434/v1", apiKeyEnv: "", models: (process.env.LOCAL_AI_MODELS ?? "local-model").split(",") } },
           openRouter: { driver: "openRouter" },
+          minimax: { driver: "minimax" },
           hermes: { driver: "hermes" },
           openclaw: { driver: "openclaw" },
           copilot: { driver: "copilot" },

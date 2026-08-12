@@ -161,6 +161,7 @@ export function ChatView({ bot }: { bot: Bot }) {
         >
           <MausAvatar
             color={bot.color}
+            shape={bot.mascotShape}
             expression={expressionForBot(bot)}
             size={28}
             motion={mascotMotion?.kind ?? "none"}

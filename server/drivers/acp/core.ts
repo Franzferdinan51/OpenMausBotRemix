@@ -41,6 +41,8 @@ export interface AcpSupport {
   driverKind: string;
   displayName: string;
   models: { default: string; options: Array<{ id: string; label: string }> };
+  /** Optional account-aware catalog probe (for example `grok models`). */
+  discoverModels?(cli: string, env: Record<string, string | undefined>): Promise<{ default: string; options: Array<{ id: string; label: string }> } | null>;
   /** Default CLI binary name if the instance config doesn't override it. */
   defaultCli: string;
   /** Native-protocol log label, e.g. "grok.acp". */
@@ -98,6 +100,7 @@ export function createAcpDriver(support: AcpSupport): ProviderDriver<AcpConfig> 
     async create(input: DriverCreateInput<AcpConfig>): Promise<ProviderInstance> {
       const { instanceId, config } = input;
       const listeners = new Set<RuntimeEventListener>();
+      const catalog = { default: support.models.default, options: [...support.models.options] };
       interface Turn {
         stop: () => void;
         interrupt: () => void;
@@ -477,6 +480,17 @@ export function createAcpDriver(support: AcpSupport): ProviderDriver<AcpConfig> 
           );
         });
         if (!version) return { state: "unavailable", reason: `\`${config.cli}\` CLI not found` };
+        if (support.discoverModels) {
+          try {
+            const discovered = await support.discoverModels(config.cli, env);
+            if (discovered?.options.length) {
+              catalog.default = discovered.default;
+              catalog.options = discovered.options;
+            }
+          } catch {
+            // A catalog endpoint must never make an otherwise healthy harness unavailable.
+          }
+        }
         return { state: "available", version, authenticated: support.isAuthenticated(env) };
       };
 
@@ -485,7 +499,7 @@ export function createAcpDriver(support: AcpSupport): ProviderDriver<AcpConfig> 
         driverKind: DRIVER_KIND,
         displayName: input.displayName,
         enabled: input.enabled,
-        models: support.models,
+        models: catalog,
         snapshot,
         adapter: {
           provider: DRIVER_KIND,

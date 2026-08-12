@@ -164,6 +164,7 @@ function BotListItem({ bot, onMenu }: { bot: Bot; onMenu: (menu: MenuState) => v
     >
       <MausAvatar
         color={bot.color}
+        shape={bot.mascotShape}
         expression={expressionForBot(bot)}
         size={44}
         motion={mascotMotion?.kind ?? "none"}

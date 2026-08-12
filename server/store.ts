@@ -32,6 +32,8 @@ export type MausExpression =
   | "worried"
   | "mischievous";
 
+export type MascotShape = "orb" | "rounded-square" | "diamond" | "hexagon";
+
 export interface OptionCardData {
   title: string;
   subtitle: string;
@@ -65,6 +67,7 @@ export interface BotRecord {
   notifications: boolean;
   color: MausColor;
   mascotExpression?: MausExpression | null;
+  mascotShape?: MascotShape;
   unread: boolean;
   modelSelection: ModelSelection;
   /** provider-native continuation per instance (e.g. claude session id) */
@@ -188,6 +191,7 @@ export class Store {
       description: "",
       notifications: true,
       color: COLORS[this.bots.length % COLORS.length],
+      mascotShape: "orb",
       unread: false,
       modelSelection: this.defaultSelection(),
       resumeCursors: {},

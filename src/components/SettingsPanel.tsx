@@ -7,6 +7,7 @@ import {
   MAUS_COLOR_NAMES,
   MAUS_EXPRESSIONS,
   MAUS_MOTIONS,
+  MASCOT_SHAPES,
 } from "@/lib/mascot";
 import { ModelPicker } from "./ModelPicker";
 import { cn } from "@/lib/cn";
@@ -33,7 +34,7 @@ export function SettingsPanel({ bot }: { bot: Bot }) {
   const { state, dispatch } = useStore();
   const patch = (
     p: Partial<
-      Pick<Bot, "name" | "title" | "description" | "notifications" | "computer" | "color" | "mascotExpression">
+      Pick<Bot, "name" | "title" | "description" | "notifications" | "computer" | "color" | "mascotExpression" | "mascotShape">
     >,
   ) => dispatch({ type: "updateBot", botId: bot.id, patch: p });
   const activeExpression = expressionForBot(bot);
@@ -62,6 +63,7 @@ export function SettingsPanel({ bot }: { bot: Bot }) {
         <div className="flex justify-center py-5">
           <MausAvatar
             color={bot.color}
+            shape={bot.mascotShape}
             expression={activeExpression}
             size={112}
             motion={mascotMotion?.kind ?? "none"}
@@ -76,7 +78,7 @@ export function SettingsPanel({ bot }: { bot: Bot }) {
                 Bot
               </span>
               <button
-                onClick={() => patch({ color: "green", mascotExpression: null })}
+                onClick={() => patch({ color: "green", mascotExpression: null, mascotShape: "orb" })}
                 className="rounded-md px-2 py-1.5 text-[13px] text-ink-secondary hover:bg-raised hover:text-ink"
               >
                 Reset
@@ -120,6 +122,17 @@ export function SettingsPanel({ bot }: { bot: Bot }) {
                     title={color}
                     aria-label={`Use ${color} mascot color`}
                   />
+                ))}
+              </div>
+
+              <div className="mb-2 mt-4 text-[12px] font-medium uppercase tracking-[0.08em] text-ink-secondary">Shape</div>
+              <div className="grid grid-cols-4 gap-2">
+                {MASCOT_SHAPES.map((shape) => (
+                  <button key={shape} onClick={() => patch({ mascotShape: shape })}
+                    className={cn("flex h-[60px] items-center justify-center rounded-xl bg-inset p-1 transition-colors hover:bg-raised", (bot.mascotShape ?? "orb") === shape && "ring-2 ring-accent-border")}
+                    title={shape} aria-label={`Use ${shape} mascot shape`}>
+                    <MausAvatar color={bot.color} shape={shape} expression={activeExpression} size={50} />
+                  </button>
                 ))}
               </div>
 

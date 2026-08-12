@@ -11,6 +11,7 @@ import { HermesDriver } from "./acp/hermes.ts";
 import { OpenClawDriver } from "./acp/openclaw.ts";
 import { CopilotDriver } from "./acp/copilot.ts";
 import { LocalAiDriver, OpenRouterDriver } from "./openai-compatible.ts";
+import { MiniMaxDriver } from "./minimax.ts";
 
 export const BUILT_IN_DRIVERS: readonly AnyProviderDriver[] = [
   GrokDriver,
@@ -24,4 +25,5 @@ export const BUILT_IN_DRIVERS: readonly AnyProviderDriver[] = [
   CopilotDriver,
   LocalAiDriver,
   OpenRouterDriver,
+  MiniMaxDriver,
 ];

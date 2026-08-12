@@ -13,6 +13,9 @@ export const MAUS_COLOR_NAMES = [
 
 export type MausColor = (typeof MAUS_COLOR_NAMES)[number];
 
+export const MASCOT_SHAPES = ["orb", "rounded-square", "diamond", "hexagon"] as const;
+export type MascotShape = (typeof MASCOT_SHAPES)[number];
+
 export const MAUS_COLORS: Record<MausColor, string> = {
   green: "#009957",
   blue: "#377FE6",
