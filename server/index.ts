@@ -113,6 +113,26 @@ const store = new Store(() => bootSelection);
 bootSelection = await defaultSelection();
 store.seedIfEmpty();
 
+// Configured provider catalogs can change between launches (CLI upgrades,
+// account changes, or a removed model). Reconcile persisted bots once at
+// startup so an old selection cannot reach startTurn and become a confusing
+// provider error. Valid selections are left untouched; only stale routes are
+// moved to the same default-selection policy used for new bots.
+const startupSelection = await defaultSelection();
+const startupDescriptions = await registry.describe();
+for (const bot of store.bots) {
+  const selected = registry.get(bot.modelSelection.instanceId);
+  const description = startupDescriptions.find((entry) => entry.instanceId === bot.modelSelection.instanceId);
+  const valid = Boolean(
+    selected &&
+      description?.snapshot.state === "available" &&
+      description.models.options.some((model) => model.id === bot.modelSelection.model),
+  );
+  if (!valid && bot.modelSelection !== startupSelection) {
+    store.patchBot(bot.id, { modelSelection: startupSelection });
+  }
+}
+
 // ── SSE fan-out to clients ─────────────────────────────────────────────
 const sseClients = new Set<ServerResponse>();
 function broadcast(payload: unknown) {
